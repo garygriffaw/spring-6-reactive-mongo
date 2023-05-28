@@ -45,4 +45,9 @@ public class BeerHandler {
                 .map(beerDTO -> beerService.patchBeer(request.pathVariable("beerId"), beerDTO))
                 .flatMap(savedDto -> ServerResponse.noContent().build());
     }
+
+    public Mono<ServerResponse> deleteBeerById(ServerRequest request) {
+        return beerService.deleteBeerById(request.pathVariable("beerId"))
+                .then(ServerResponse.noContent().build());
+    }
 }
