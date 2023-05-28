@@ -11,6 +11,8 @@ public interface BeerService {
 
     Mono<BeerDTO> findFirstByBeerName(String beerName);
 
+    Flux<BeerDTO> findByBeerStyle(String beerStyle);
+
     Mono<BeerDTO> saveBeer(Mono<BeerDTO> beerDTO);
 
     Mono<BeerDTO> getById(String beerId);
