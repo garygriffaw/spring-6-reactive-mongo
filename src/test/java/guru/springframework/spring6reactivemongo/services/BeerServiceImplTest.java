@@ -126,6 +126,18 @@ class BeerServiceImplTest {
     }
 
     @Test
+    void testPatchBeerBlock() {
+        final String updateName = "Patched name";
+        BeerDTO savedBeerDto = getSavedBeerDto();
+        savedBeerDto.setBeerName(updateName);
+
+        BeerDTO updatedDto = beerService.patchBeer(savedBeerDto.getId(), savedBeerDto).block();
+
+        BeerDTO fetchedDto = beerService.getById(updatedDto.getId()).block();
+        assertThat(fetchedDto.getBeerName()).isEqualTo(updateName);
+    }
+
+    @Test
     void testDeleteBeer() {
         BeerDTO beerToDelete = getSavedBeerDto();
 
