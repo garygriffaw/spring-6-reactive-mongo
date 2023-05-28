@@ -30,6 +30,8 @@ public class BeerServiceImpl implements BeerService {
 
     @Override
     public Mono<BeerDTO> getById(String beerId) {
-        return null;
+
+        return beerRepository.findById(beerId)
+                .map(beerMapper::beerToBeerDto);
     }
 }
