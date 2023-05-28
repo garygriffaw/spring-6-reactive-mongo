@@ -2,8 +2,11 @@ package guru.springframework.spring6reactivemongo.services;
 
 import guru.springframework.spring6reactivemongo.domain.Beer;
 import guru.springframework.spring6reactivemongo.mappers.BeerMapper;
+import guru.springframework.spring6reactivemongo.mappers.BeerMapperImpl;
 import guru.springframework.spring6reactivemongo.model.BeerDTO;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,9 +14,10 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class BeerServiceImplTest {
@@ -32,17 +36,39 @@ class BeerServiceImplTest {
     }
 
     @Test
-    void testSaveBeer() throws InterruptedException {
+    @DisplayName("Test Save Beer Using Subscriber")
+    @Order(1)
+    void testSaveBeerSubscriber() {
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        AtomicReference<BeerDTO> atomicDto = new AtomicReference<>();
 
         Mono<BeerDTO> savedMono = beerService.saveBeer(Mono.just(beerDTO));
 
         savedMono.subscribe(savedDto -> {
             System.out.println(savedDto.getId());
             atomicBoolean.set(true);
+            atomicDto.set(savedDto);
         });
 
         await().untilTrue(atomicBoolean);
+
+        BeerDTO persistedDto = atomicDto.get();
+        assertThat(persistedDto).isNotNull();
+        assertThat(persistedDto.getId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Test Save Beer Using Block")
+    void testSaveBeerBlock() {
+        BeerDTO savedDto = beerService.saveBeer(Mono.just(getTestBeerDto())).block();
+        System.out.println(savedDto.getId());
+
+        assertThat(savedDto).isNotNull();
+        assertThat(savedDto.getId()).isNotNull();
+    }
+
+    public static BeerDTO getTestBeerDto() {
+        return new BeerMapperImpl().beerToBeerDto(getTestBeer());
     }
 
     public static Beer getTestBeer() {
