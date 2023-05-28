@@ -10,9 +10,11 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -33,6 +35,28 @@ class BeerServiceImplTest {
     @BeforeEach
     void setUp() {
         beerDTO = beerMapper.beerToBeerDto(getTestBeer());
+    }
+
+    @Test
+    void testListBeers() {
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        AtomicReference<List<BeerDTO>> atomicList = new AtomicReference<>();
+
+        Flux<BeerDTO> fluxBeerDtos = beerService.listBeers();
+        Mono<List<BeerDTO>> listMono= fluxBeerDtos.collectList();
+
+        listMono.subscribe(list -> {
+            atomicBoolean.set(true);
+            atomicList.set(list);
+//            list.forEach(dto -> {
+//                System.out.println(dto.toString());
+//            });
+        });
+
+        await().untilTrue(atomicBoolean);
+
+        List<BeerDTO> retrievedList = atomicList.get();
+        assertThat(retrievedList).isNotNull();
     }
 
     @Test
