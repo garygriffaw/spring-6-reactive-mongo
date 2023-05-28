@@ -67,6 +67,44 @@ class BeerServiceImplTest {
         assertThat(savedDto.getId()).isNotNull();
     }
 
+    @Test
+    void testUpdateBeerBlock() {
+        final String updateName = "Updated name";
+        BeerDTO savedBeerDto = getSavedBeerDto();
+        savedBeerDto.setBeerName(updateName);
+
+        BeerDTO updatedDto = beerService.updateBeer(savedBeerDto.getId(), savedBeerDto).block();
+
+        BeerDTO fetchedDto = beerService.getById(updatedDto.getId()).block();
+        assertThat(fetchedDto.getBeerName()).isEqualTo(updateName);
+    }
+
+    @Test
+    void testUpdateBeerSubscriber() {
+        final String updateName = "Updated name";
+        BeerDTO savedBeerDto = getSavedBeerDto();
+        savedBeerDto.setBeerName(updateName);
+
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        AtomicReference<BeerDTO> atomicDto = new AtomicReference<>();
+
+        Mono<BeerDTO> updatedMono = beerService.updateBeer(savedBeerDto.getId(), savedBeerDto);
+
+        updatedMono.subscribe(updatedBeerDto -> {
+           atomicBoolean.set(true);
+           atomicDto.set(updatedBeerDto);
+        });
+
+        await().untilTrue(atomicBoolean);
+
+        BeerDTO persistedBeerDto = atomicDto.get();
+        assertThat(persistedBeerDto.getBeerName()).isEqualTo(updateName);
+    }
+
+    public BeerDTO getSavedBeerDto() {
+        return beerService.saveBeer(Mono.just(getTestBeerDto())).block();
+    }
+
     public static BeerDTO getTestBeerDto() {
         return new BeerMapperImpl().beerToBeerDto(getTestBeer());
     }
