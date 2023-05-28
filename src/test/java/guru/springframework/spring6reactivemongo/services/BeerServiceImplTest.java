@@ -125,6 +125,19 @@ class BeerServiceImplTest {
         assertThat(persistedBeerDto.getBeerName()).isEqualTo(updateName);
     }
 
+    @Test
+    void testDeleteBeer() {
+        BeerDTO beerToDelete = getSavedBeerDto();
+
+        beerService.deleteBeerById(beerToDelete.getId()).block();
+
+        Mono<BeerDTO> expectedEmptyBeerMono = beerService.getById(beerToDelete.getId());
+
+        BeerDTO emptyBeer = expectedEmptyBeerMono.block();
+
+        assertThat(emptyBeer).isNull();
+    }
+
     public BeerDTO getSavedBeerDto() {
         return beerService.saveBeer(Mono.just(getTestBeerDto())).block();
     }

@@ -13,4 +13,6 @@ public interface BeerService {
     Mono<BeerDTO> getById(String beerId);
 
     Mono<BeerDTO> updateBeer(String beerId, BeerDTO beerDTO);
+
+    Mono<Void> deleteBeerById(String beerId);
 }
