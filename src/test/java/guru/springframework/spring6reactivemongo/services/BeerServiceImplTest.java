@@ -60,6 +60,26 @@ class BeerServiceImplTest {
     }
 
     @Test
+    void testFindFirstByBeerName() {
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        AtomicReference<BeerDTO> atomicDto = new AtomicReference<>();
+
+        BeerDTO savedDTO = getSavedBeerDto();
+
+        Mono<BeerDTO> foundDto = beerService.findFirstByBeerName(savedDTO.getBeerName());
+
+        foundDto.subscribe(dto -> {
+//            System.out.println(dto.toString());
+            atomicBoolean.set(true);
+            atomicDto.set(dto);
+        });
+
+        await().untilTrue(atomicBoolean);
+        BeerDTO returnedDto = atomicDto.get();
+        assertThat(returnedDto.getBeerName()).isEqualTo(savedDTO.getBeerName());
+    }
+
+    @Test
     @DisplayName("Test Save Beer Using Subscriber")
     @Order(1)
     void testSaveBeerSubscriber() {
