@@ -22,6 +22,7 @@ public class CustomerRouterConfig {
     public RouterFunction<ServerResponse> customerRoutes() {
         return route()
                 .GET(CUSTOMER_PATH, accept(APPLICATION_JSON), handler::listCustomers)
+                .GET(CUSTOMER_PATH_ID, accept(APPLICATION_JSON), handler::getCustomerById)
                 .build();
     }
 }
