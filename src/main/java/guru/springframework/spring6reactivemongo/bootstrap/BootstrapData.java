@@ -22,6 +22,11 @@ public class BootstrapData implements CommandLineRunner {
         beerRepository.deleteAll()
                 .doOnSuccess(success -> {
                     loadBeerData();
+                })
+                .subscribe();
+
+        customerRepository.deleteAll()
+                .doOnSuccess(success -> {
                     loadCustomerData();
                 })
                 .subscribe();
