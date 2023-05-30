@@ -55,6 +55,13 @@ public class CustomerHandler {
                 .flatMap(savedDto -> ServerResponse.noContent().build());
     }
 
+    public Mono<ServerResponse> deleteCustomerById(ServerRequest request) {
+        return customerService.getCustomerById(request.pathVariable("customerId"))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .flatMap(customerDTO -> customerService.deleteCustomerById(customerDTO.getId()))
+                .then(ServerResponse.noContent().build());
+    }
+
     private void validate(CustomerDTO customerDTO) {
         Errors errors = new BeanPropertyBindingResult(customerDTO, "customerDto");
         validator.validate(customerDTO, errors);

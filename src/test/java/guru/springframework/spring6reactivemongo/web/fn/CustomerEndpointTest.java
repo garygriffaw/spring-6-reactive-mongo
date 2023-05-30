@@ -108,6 +108,24 @@ public class CustomerEndpointTest {
                 .expectStatus().isBadRequest();
     }
 
+    @Test
+    void testDeleteCustomer() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+
+        webTestClient.delete()
+                .uri(CustomerRouterConfig.CUSTOMER_PATH_ID, testDTO.getId())
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    void testDeleteCustomerNotFound() {
+        webTestClient.delete()
+                .uri(CustomerRouterConfig.CUSTOMER_PATH_ID, 999)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
     public CustomerDTO getSavedTestCustomer() {
         FluxExchangeResult<CustomerDTO> customerDTOFluxExchangeResult = webTestClient.post()
                 .uri(CustomerRouterConfig.CUSTOMER_PATH)

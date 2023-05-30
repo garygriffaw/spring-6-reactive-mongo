@@ -12,4 +12,6 @@ public interface CustomerService {
     Mono<CustomerDTO> saveCustomer(Mono<CustomerDTO> customerDTO);
 
     Mono<CustomerDTO> updateCustomer(String customerId, CustomerDTO customerDTO);
+
+    Mono<Void> deleteCustomerById(String customerId);
 }
