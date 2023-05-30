@@ -43,6 +43,13 @@ public class CustomerEndpointTest {
                 .expectBody(CustomerDTO.class);
     }
 
+    @Test
+    void testGetByIdNotFound() {
+        webTestClient.get().uri(CustomerRouterConfig.CUSTOMER_PATH_ID, 999)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
     public CustomerDTO getSavedTestCustomer() {
         FluxExchangeResult<CustomerDTO> customerDTOFluxExchangeResult = webTestClient.post()
                 .uri(CustomerRouterConfig.CUSTOMER_PATH)
