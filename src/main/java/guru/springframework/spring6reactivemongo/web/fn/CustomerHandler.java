@@ -55,6 +55,14 @@ public class CustomerHandler {
                 .flatMap(savedDto -> ServerResponse.noContent().build());
     }
 
+    public Mono<ServerResponse> patchCustomerById(ServerRequest request) {
+        return request.bodyToMono(CustomerDTO.class)
+                .doOnNext(this::validate)
+                .flatMap(customerDTO -> customerService.patchCustomer(request.pathVariable("customerId"), customerDTO))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .flatMap(savedDto -> ServerResponse.noContent().build());
+    }
+
     public Mono<ServerResponse> deleteCustomerById(ServerRequest request) {
         return customerService.getCustomerById(request.pathVariable("customerId"))
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))

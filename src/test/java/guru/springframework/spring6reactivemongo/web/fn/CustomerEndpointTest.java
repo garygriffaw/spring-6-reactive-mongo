@@ -109,6 +109,40 @@ public class CustomerEndpointTest {
     }
 
     @Test
+    void testPatchCustomer() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+
+        webTestClient.patch()
+                .uri(CustomerRouterConfig.CUSTOMER_PATH_ID, testDTO.getId())
+                .body(Mono.just(testDTO), CustomerDTO.class)
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    void testPatchCustomerNotFound() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+
+        webTestClient.patch()
+                .uri(CustomerRouterConfig.CUSTOMER_PATH_ID, 999)
+                .body(Mono.just(testDTO), CustomerDTO.class)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testPatchCustomerBadData() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+        testDTO.setCustomerName("AA");
+
+        webTestClient.patch()
+                .uri(CustomerRouterConfig.CUSTOMER_PATH_ID, testDTO.getId())
+                .body(Mono.just(testDTO), CustomerDTO.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
     void testDeleteCustomer() {
         CustomerDTO testDTO = getSavedTestCustomer();
 
