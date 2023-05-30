@@ -74,6 +74,40 @@ public class CustomerEndpointTest {
                 .expectStatus().isBadRequest();
     }
 
+    @Test
+    void testUpdateCustomer() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+
+        webTestClient.put()
+                .uri(CustomerRouterConfig.CUSTOMER_PATH_ID, testDTO.getId())
+                .body(Mono.just(testDTO), CustomerDTO.class)
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    void testUpdateCustomerNotFound() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+
+        webTestClient.put()
+                .uri(CustomerRouterConfig.CUSTOMER_PATH_ID, 999)
+                .body(Mono.just(testDTO), CustomerDTO.class)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testUpdateCustomerBadData() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+        testDTO.setCustomerName("AA");
+
+        webTestClient.put()
+                .uri(CustomerRouterConfig.CUSTOMER_PATH_ID, testDTO.getId())
+                .body(Mono.just(testDTO), CustomerDTO.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
     public CustomerDTO getSavedTestCustomer() {
         FluxExchangeResult<CustomerDTO> customerDTOFluxExchangeResult = webTestClient.post()
                 .uri(CustomerRouterConfig.CUSTOMER_PATH)

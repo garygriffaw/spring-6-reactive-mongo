@@ -47,6 +47,14 @@ public class CustomerHandler {
                         .build());
     }
 
+    public Mono<ServerResponse> updateCustomerById(ServerRequest request) {
+        return request.bodyToMono(CustomerDTO.class)
+                .doOnNext(this::validate)
+                .flatMap(customerDTO -> customerService.updateCustomer(request.pathVariable("customerId"), customerDTO))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .flatMap(savedDto -> ServerResponse.noContent().build());
+    }
+
     private void validate(CustomerDTO customerDTO) {
         Errors errors = new BeanPropertyBindingResult(customerDTO, "customerDto");
         validator.validate(customerDTO, errors);
