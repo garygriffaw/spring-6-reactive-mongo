@@ -5,9 +5,14 @@ import guru.springframework.spring6reactivemongo.services.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebInputException;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,6 +20,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CustomerHandler {
     private final CustomerService customerService;
+    private final Validator validator;
 
     public Mono<ServerResponse> listCustomers(ServerRequest request) {
         Flux<CustomerDTO> flux;
@@ -29,5 +35,23 @@ public class CustomerHandler {
         return ServerResponse.ok()
                 .body(customerService.getCustomerById(request.pathVariable("customerId"))
                         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))), CustomerDTO.class);
+    }
+
+    public Mono<ServerResponse> createNewCustomer(ServerRequest request) {
+        return customerService.saveCustomer(request.bodyToMono(CustomerDTO.class)
+                .doOnNext(this::validate))
+                .flatMap(customerDTO -> ServerResponse
+                        .created(UriComponentsBuilder
+                                .fromPath(CustomerRouterConfig.CUSTOMER_PATH)
+                                .build(customerDTO.getId()))
+                        .build());
+    }
+
+    private void validate(CustomerDTO customerDTO) {
+        Errors errors = new BeanPropertyBindingResult(customerDTO, "customerDto");
+        validator.validate(customerDTO, errors);
+
+        if (errors.hasErrors())
+            throw new ServerWebInputException(errors.toString());
     }
 }

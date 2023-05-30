@@ -8,4 +8,6 @@ public interface CustomerService {
     Flux<CustomerDTO> listCustomers();
 
     Mono<CustomerDTO> getCustomerById(String customerId);
+
+    Mono<CustomerDTO> saveCustomer(Mono<CustomerDTO> customerDTO);
 }

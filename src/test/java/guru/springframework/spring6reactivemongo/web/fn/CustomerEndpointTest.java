@@ -50,6 +50,30 @@ public class CustomerEndpointTest {
                 .expectStatus().isNotFound();
     }
 
+    @Test
+    void testCreateCustomer() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+
+        webTestClient.post().uri(CustomerRouterConfig.CUSTOMER_PATH)
+                .body(Mono.just(testDTO), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isCreated()
+                .expectHeader().exists("location");
+    }
+
+    @Test
+    void testCreateCustomerBadData() {
+        CustomerDTO testDTO = getSavedTestCustomer();
+        testDTO.setCustomerName("AA");
+
+        webTestClient.post().uri(CustomerRouterConfig.CUSTOMER_PATH)
+                .body(Mono.just(testDTO), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
     public CustomerDTO getSavedTestCustomer() {
         FluxExchangeResult<CustomerDTO> customerDTOFluxExchangeResult = webTestClient.post()
                 .uri(CustomerRouterConfig.CUSTOMER_PATH)

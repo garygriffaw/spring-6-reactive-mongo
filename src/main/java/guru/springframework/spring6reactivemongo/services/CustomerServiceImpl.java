@@ -25,4 +25,11 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.findById(customerId)
                 .map(customerMapper::customerToCustomerDto);
     }
+
+    @Override
+    public Mono<CustomerDTO> saveCustomer(Mono<CustomerDTO> customerDTO) {
+        return customerDTO.map(customerMapper::customerDtoToCustomer)
+                .flatMap(customerRepository::save)
+                .map(customerMapper::customerToCustomerDto);
+    }
 }
